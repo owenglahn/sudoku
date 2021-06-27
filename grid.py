@@ -25,25 +25,16 @@ class Grid:
         row = []
         for col in self.values:
             row.append(col[y])
-        try:
-            row.index(value)
-            return True
-        except ValueError:
-            return False
+        return value in row
 
     def in_column(self, x, value):
-        try:
-            self.values[x].index(value)
-            return True
-        except ValueError:
-            return False
+        return value in self.values[x]
 
     def in_subgrid(self, coords, value):
         subgrid = self.values[coords[0] // 3 * 3:coords[0] // 3 * 3 + 3]
         for col in subgrid:
-            for val in col[coords[1] // 3 * 3: coords[1] // 3 * 3 + 3]:
-                if val == value:
-                    return True
+            if value in col[coords[1] // 3 * 3: coords[1] // 3 * 3 + 3]:
+                return True
         return False
 
     def is_valid(self, coords, value):
