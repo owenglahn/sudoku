@@ -21,9 +21,6 @@ class Grid:
         self.observer = GridView(self, surface)
         self.hints = []  # cannot change hint squares
 
-    def get(self, x, y):
-        return self.values[x][y]
-
     def in_row(self, y, value):
         row = []
         for col in self.values:
@@ -70,10 +67,10 @@ class Grid:
         self.values[x][y] = 0
         return False
 
-    # creates sudoku puzzle with 17 hints (min num for unique solution)
     def populate(self):
-        self.solve(0, 0)
+        self.solve(0, 0)  # solve empty board
         random.seed(a=random.randint(0, 100))  # create random seed
+        # remove solved cells at random to create puzzle
         for i in range(60):
             x = random.randint(0, 8)
             y = random.randint(0, 8)
