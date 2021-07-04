@@ -18,8 +18,17 @@ class Grid:
         self.values = []  # 9x9 empty board
         for x in range(9):
             self.values.append([0] * 9)
+        self.hints = [(x, y) for x in range(9)
+                      for y in range(9)]  # cannot change hint squares
         self.observer = GridView(self, surface)
-        self.hints = []  # cannot change hint squares
+        self.populate()
+
+    def get(self, x, y):
+        return self.values[x][y]
+
+    def set_value(self, x, y, val):
+        self.values[x][y] = val
+        self.observer.cell_changed((x, y))
 
     def in_row(self, y, value):
         row = []
@@ -51,11 +60,11 @@ class Grid:
             return self.solve(x + 1, y)
         for val in create_randoms():
             if self.is_valid((x, y), val):
-                self.values[x][y] = val
+                self.set_value(x, y, val)
                 if self.solve(x + 1, y):
                     return True
 
-        self.values[x][y] = 0
+        self.set_value(x, y, 0)
         return False
 
     def populate(self):
@@ -69,6 +78,11 @@ class Grid:
                 x = random.randint(0, 8)
                 y = random.randint(0, 8)
             self.values[x][y] = 0
+            self.observer.cell_changed((x, y))
+            try:
+                self.hints.remove((x, y))
+            except ValueError:
+                print((x, y))
         self.observer.draw()
 
     def clear(self):
