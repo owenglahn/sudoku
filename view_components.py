@@ -44,9 +44,14 @@ class Cell(pygame.Rect):
         self.bold = bold
 
     def render(self):
+        # black if valid entry, red otherwise
+        if self.text.isdigit() and self.grid.is_valid(self.coords, int(self.text)):
+            color = (0, 0, 0)
+        else:
+            color = (255, 0, 0)
         pygame.draw.rect(self.surface, (255, 255, 255), self)
         font.set_bold(self.bold)
-        txt_surface = font.render(self.text, 1, (0, 0, 0))
+        txt_surface = font.render(self.text, 1, color)
         font.set_bold(False)
         self.surface.blit(txt_surface,
                           (self.centerx - 20, self.centery - 20))
@@ -75,27 +80,29 @@ class Cell(pygame.Rect):
 
     def handle_click(self):
         self.highlight()
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key != pygame.K_RETURN:
-                if event.key == pygame.K_BACKSPACE:
-                    self.text = self.text[:-1]
-                    self.render()
-                elif event.unicode.isdigit() and int(event.unicode) in range(1, 10):
-                    self.text = event.unicode
-                    self.render()
-            else:
-                if self.text.isdigit():  # sanity check
-                    self.update_cell(int(self.text))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN and event.key != pygame.K_RETURN:
+                    if event.key == pygame.K_BACKSPACE:
+                        self.text = self.text[:-1]
+                        self.render()
+                    elif event.unicode.isdigit() and int(event.unicode) in range(1, 10):
+                        print(event.unicode)
+                        self.text = event.unicode
+                        self.render()
                 else:
-                    self.text = ''
-                return
+                    if self.text.isdigit():  # sanity check
+                        self.update_cell(int(self.text))
+                    else:
+                        self.text = ''
+                    return
 
 
 class GridView:
     def __init__(self, grid, surface):
         self.grid = grid
         self.grid_view = []
-        # initializes board of rects with origin in top right
+        # initializes board of rects with origin in top left
         for x in range(9):
             self.grid_view.append([])
             for y in range(9):
@@ -109,6 +116,7 @@ class GridView:
     def get_cell(self, coords):
         return self.grid_view[coords[0]][coords[1]]
 
+    # call-back method, grid -> observer
     def cell_changed(self, coords):
         self.get_cell(coords).cell_changed()
 

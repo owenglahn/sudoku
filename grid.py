@@ -1,4 +1,5 @@
 import random
+import copy
 from view_components import *
 
 
@@ -30,25 +31,30 @@ class Grid:
         self.values[x][y] = val
         self.observer.cell_changed((x, y))
 
-    def in_row(self, y, value):
+    def in_row(self, coords, value):
         row = []
         for col in self.values:
-            row.append(col[y])
+            row.append(col[coords[1]])
+        del row[coords[0]]
         return value in row
 
-    def in_column(self, x, value):
-        return value in self.values[x]
+    def in_column(self, coords, value):
+        col = copy.deepcopy(self.values[coords[0]])
+        del col[coords[1]]
+        return value in col
 
     def in_subgrid(self, coords, value):
-        subgrid = self.values[coords[0] // 3 * 3:coords[0] // 3 * 3 + 3]
+        subgrid = copy.deepcopy(
+            self.values[coords[0] // 3 * 3:coords[0] // 3 * 3 + 3])
+        subgrid[coords[0] % 3][coords[1]] = 0
         for col in subgrid:
             if value in col[coords[1] // 3 * 3: coords[1] // 3 * 3 + 3]:
                 return True
         return False
 
     def is_valid(self, coords, value):
-        return not (self.in_row(coords[1], value) or
-                    self.in_column(coords[0], value) or
+        return not (self.in_row(coords, value) or
+                    self.in_column(coords, value) or
                     self.in_subgrid(coords, value))
 
     def solve(self, x, y):
@@ -79,10 +85,12 @@ class Grid:
                 y = random.randint(0, 8)
             self.values[x][y] = 0
             self.observer.cell_changed((x, y))
+            # for debugging
             try:
                 self.hints.remove((x, y))
             except ValueError:
                 print((x, y))
+
         self.observer.draw()
 
     def clear(self):
