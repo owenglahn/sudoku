@@ -84,7 +84,7 @@ class Cell(pygame.Rect):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN and event.key != pygame.K_RETURN:
                     if event.key == pygame.K_BACKSPACE:
-                        self.text = self.text[:-1]
+                        self.text = ''
                         self.render()
                     elif event.unicode.isdigit() and int(event.unicode) in range(1, 10):
                         print(event.unicode)

@@ -19,8 +19,7 @@ class Grid:
         self.values = []  # 9x9 empty board
         for x in range(9):
             self.values.append([0] * 9)
-        self.hints = [(x, y) for x in range(9)
-                      for y in range(9)]  # cannot change hint squares
+        self.hints = []
         self.observer = GridView(self, surface)
         self.populate()
 
@@ -62,7 +61,7 @@ class Grid:
             return self.solve(0, y + 1)
         if y == 9:
             return True
-        if self.values[x][y] != 0:
+        if (x, y) in self.hints:
             return self.solve(x + 1, y)
         for val in create_randoms():
             if self.is_valid((x, y), val):
@@ -75,6 +74,8 @@ class Grid:
 
     def populate(self):
         self.solve(0, 0)  # solve empty board
+        self.hints = [(x, y) for x in range(9)
+                      for y in range(9)]  # cannot change hint squares
         random.seed(a=random.randint(0, 100))  # create random seed
         # remove solved cells at random to create puzzle
         for i in range(60):
